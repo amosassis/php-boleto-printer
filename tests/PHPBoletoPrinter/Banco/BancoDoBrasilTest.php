@@ -1,7 +1,7 @@
 <?php
 
-namespace Tests\OpenBoleto\Banco;
-use OpenBoleto\Banco\BancoDoBrasil;
+namespace Tests\PHPBoletoPrinter\Banco;
+use PHPBoletoPrinter\Banco\BancoDoBrasil;
 
 class BancoDoBrasilTest extends \PHPUnit_Framework_TestCase
 {

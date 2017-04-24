@@ -1,7 +1,7 @@
 <?php
 
-namespace Tests\OpenBoleto\Banco;
-use OpenBoleto\Banco\Bradesco;
+namespace Tests\PHPBoletoPrinter\Banco;
+use PHPBoletoPrinter\Banco\Bradesco;
 
 class BradescoTest extends \PHPUnit_Framework_TestCase
 {

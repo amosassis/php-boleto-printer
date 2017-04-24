@@ -1,7 +1,7 @@
 <?php
 
-namespace Tests\OpenBoleto\Banco;
-use OpenBoleto\Banco\CaixaSICOB;
+namespace Tests\PHPBoletoPrinter\Banco;
+use PHPBoletoPrinter\Banco\CaixaSICOB;
 
 class CaixaSICOBTest extends \PHPUnit_Framework_TestCase
 {

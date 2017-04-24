@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\OpenBoleto;
+namespace Tests\PHPBoletoPrinter;
 
 class BoletoAbstractTest extends \PHPUnit_Framework_TestCase
 {

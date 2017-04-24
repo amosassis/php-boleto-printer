@@ -1,7 +1,7 @@
 <?php
 
-namespace Tests\OpenBoleto;
-use OpenBoleto\BoletoFactory;
+namespace Tests\PHPBoletoPrinter;
+use PHPBoletoPrinter\BoletoFactory;
 
 class FactoryTest extends \PHPUnit_Framework_TestCase
 {

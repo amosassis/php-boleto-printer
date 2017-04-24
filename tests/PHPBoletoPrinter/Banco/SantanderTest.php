@@ -1,7 +1,7 @@
 <?php
 
-namespace Tests\OpenBoleto\Banco;
-use OpenBoleto\Banco\Santander;
+namespace Tests\PHPBoletoPrinter\Banco;
+use PHPBoletoPrinter\Banco\Santander;
 
 class SantanderTest extends \PHPUnit_Framework_TestCase
 {

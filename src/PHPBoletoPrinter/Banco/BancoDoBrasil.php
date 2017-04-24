@@ -25,10 +25,10 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-namespace OpenBoleto\Banco;
+namespace PHPBoletoPrinter\Banco;
 
-use OpenBoleto\BoletoAbstract;
-use OpenBoleto\Exception;
+use PHPBoletoPrinter\BoletoAbstract;
+use PHPBoletoPrinter\Exception;
 
 /**
  * Classe boleto Banco do Brasil S/A.

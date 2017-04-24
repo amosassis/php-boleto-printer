@@ -25,12 +25,13 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-namespace OpenBoleto\Banco;
+namespace PHPBoletoPrinter\Banco;
 
-use OpenBoleto\BoletoAbstract;
+use PHPBoletoPrinter\BoletoAbstract;
+use PHPBoletoPrinter\Exception;
 
 /**
- * Classe boleto BRB - Banco de Brasília.
+ * Classe boleto Santander
  *
  * @package    OpenBoleto
  * @author     Daniel Garajau <http://github.com/kriansa>
@@ -38,37 +39,63 @@ use OpenBoleto\BoletoAbstract;
  * @license    MIT License
  * @version    1.0
  */
-class Brb extends BoletoAbstract
+class Santander extends BoletoAbstract
 {
     /**
      * Código do banco
      * @var string
      */
-    protected $codigoBanco = '070';
+    protected $codigoBanco = '033';
 
     /**
      * Localização do logotipo do banco, referente ao diretório de imagens
      * @var string
      */
-    protected $logoBanco = 'brb.png';
+    protected $logoBanco = 'santander.jpg';
 
     /**
      * Linha de local de pagamento
      * @var string
      */
-    protected $localPagamento = 'Até o vencimento pagar em qualquer Banco, depois só no BRB';
+    protected $localPagamento = 'Pagar preferencialmente no Banco Santander';
 
     /**
      * Define as carteiras disponíveis para este banco
      * @var array
      */
-    protected $carteiras = array('1', '2');
+    protected $carteiras = array('101', '102', '201');
 
     /**
      * Define os nomes das carteiras para exibição no boleto
      * @var array
      */
-    protected $carteirasNomes = array('1' => 'COB', '2' => 'COB');
+    protected $carteirasNomes = array('101' => 'Cobrança Simples ECR', '102' => 'Cobrança Simples CSR');
+
+    /**
+     * Define o valor do IOS - Seguradoras (Se 7% informar 7. Limitado a 9%) - Demais clientes usar 0 (zero)
+     * @var int
+     */
+    protected $ios;
+
+    /**
+     * Define o valor do IOS
+     *
+     * @param int $ios
+     */
+    public function setIos($ios)
+    {
+        $this->ios = $ios;
+    }
+
+    /**
+     * Retorna o atual valor do IOS
+     *
+     * @return int
+     */
+    public function getIos()
+    {
+        return $this->ios;
+    }
 
     /**
      * Gera o Nosso Número.
@@ -77,48 +104,32 @@ class Brb extends BoletoAbstract
      */
     protected function gerarNossoNumero()
     {
-        return substr($this->getCampoLivre(), 13);
+        return self::zeroFill($this->getSequencial(), 13);
     }
 
     /**
      * Método para gerar o código da posição de 20 a 44
      *
      * @return string
+     * @throws \OpenBoleto\Exception
      */
     public function getCampoLivre()
     {
-        $chave = '000' . static::zeroFill($this->getAgencia(), 3) . 
-                 static::zeroFill($this->getConta(), 7) . 
-                 $this->getCarteira() . 
-                 static::zeroFill($this->getSequencial(), 6) .
-                 $this->getCodigoBanco();
-        $d1 = static::modulo10($chave);
-
-        CalculaD2:
-        $modulo = static::modulo11($chave . $d1, 7);
-
-        if ($modulo['resto'] == 0) {
-            $d2 = 0;
-        } else if ($modulo['resto'] > 1) {
-            $d2 = 11 - $modulo['resto'];
-        } else if ($modulo['resto'] == 1) {
-            $d1 = $d1 + 1;
-            if ($d1 == 10) {
-                $d1 = 0;
-            }
-            goto CalculaD2;
-        }
-
-        return $chave . $d1 . $d2;
+        return '9' . self::zeroFill($this->getConta(), 7) .
+            $this->getNossoNumero() .
+            self::zeroFill($this->getIos(), 1) .
+            self::zeroFill($this->getCarteira(), 3);
     }
 
     /**
-     * Retorna o campo Agência/Cedente do boleto
+     * Define variáveis da view específicas do boleto do Santander
      *
-     * @return string
+     * @return array
      */
-    public function getAgenciaCodigoCedente()
+    public function getViewVars()
     {
-        return '000 - ' . $this->getAgencia() . ' - ' . $this->getConta();
+        return array(
+            'esconde_uso_banco' => true,
+        );
     }
 }

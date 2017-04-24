@@ -25,13 +25,12 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-namespace OpenBoleto\Banco;
+namespace PHPBoletoPrinter\Banco;
 
-use OpenBoleto\BoletoAbstract;
-use OpenBoleto\Exception;
+use PHPBoletoPrinter\BoletoAbstract;
 
 /**
- * Classe boleto Unicred.
+ * Classe boleto BRB - Banco de Brasília.
  *
  * @package    OpenBoleto
  * @author     Daniel Garajau <http://github.com/kriansa>
@@ -39,25 +38,37 @@ use OpenBoleto\Exception;
  * @license    MIT License
  * @version    1.0
  */
-class Unicred extends BoletoAbstract
+class Brb extends BoletoAbstract
 {
     /**
      * Código do banco
      * @var string
      */
-    protected $codigoBanco = '136';
+    protected $codigoBanco = '070';
 
     /**
      * Localização do logotipo do banco, referente ao diretório de imagens
      * @var string
      */
-    protected $logoBanco = 'unicred.jpg';
+    protected $logoBanco = 'brb.png';
+
+    /**
+     * Linha de local de pagamento
+     * @var string
+     */
+    protected $localPagamento = 'Até o vencimento pagar em qualquer Banco, depois só no BRB';
 
     /**
      * Define as carteiras disponíveis para este banco
      * @var array
      */
-    protected $carteiras = array('11', '21', '31', '41', '51');
+    protected $carteiras = array('1', '2');
+
+    /**
+     * Define os nomes das carteiras para exibição no boleto
+     * @var array
+     */
+    protected $carteirasNomes = array('1' => 'COB', '2' => 'COB');
 
     /**
      * Gera o Nosso Número.
@@ -66,22 +77,39 @@ class Unicred extends BoletoAbstract
      */
     protected function gerarNossoNumero()
     {
-        $numero = self::zeroFill($this->getSequencial(), 10);
-        $dv = static::modulo11($numero);
-        $numero .= '-' . $dv['digito'];
-
-        return $numero;
+        return substr($this->getCampoLivre(), 13);
     }
 
     /**
      * Método para gerar o código da posição de 20 a 44
      *
      * @return string
-     * @throws \OpenBoleto\Exception
      */
     public function getCampoLivre()
     {
-        return self::zeroFill($this->getAgencia(), 4) . self::zeroFill($this->getConta(), 10) . self::zeroFill($this->getNossoNumero(false), 11);
+        $chave = '000' . static::zeroFill($this->getAgencia(), 3) . 
+                 static::zeroFill($this->getConta(), 7) . 
+                 $this->getCarteira() . 
+                 static::zeroFill($this->getSequencial(), 6) .
+                 $this->getCodigoBanco();
+        $d1 = static::modulo10($chave);
+
+        CalculaD2:
+        $modulo = static::modulo11($chave . $d1, 7);
+
+        if ($modulo['resto'] == 0) {
+            $d2 = 0;
+        } else if ($modulo['resto'] > 1) {
+            $d2 = 11 - $modulo['resto'];
+        } else if ($modulo['resto'] == 1) {
+            $d1 = $d1 + 1;
+            if ($d1 == 10) {
+                $d1 = 0;
+            }
+            goto CalculaD2;
+        }
+
+        return $chave . $d1 . $d2;
     }
 
     /**
@@ -91,6 +119,6 @@ class Unicred extends BoletoAbstract
      */
     public function getAgenciaCodigoCedente()
     {
-        return static::zeroFill($this->getAgencia(), 4) . ' / ' . static::zeroFill($this->getConta(), 10);
+        return '000 - ' . $this->getAgencia() . ' - ' . $this->getConta();
     }
 }

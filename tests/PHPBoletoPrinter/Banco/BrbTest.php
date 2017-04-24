@@ -1,7 +1,7 @@
 <?php
 
-namespace Tests\OpenBoleto\Banco;
-use OpenBoleto\Banco\Brb;
+namespace Tests\PHPBoletoPrinter\Banco;
+use PHPBoletoPrinter\Banco\Brb;
 
 class BrbTest extends \PHPUnit_Framework_TestCase
 {

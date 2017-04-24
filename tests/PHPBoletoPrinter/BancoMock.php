@@ -1,8 +1,8 @@
 <?php
 
-namespace Tests\OpenBoleto;
+namespace Tests\PHPBoletoPrinter;
 
-use OpenBoleto\BoletoAbstract;
+use PHPBoletoPrinterv\BoletoAbstract;
 
 class BancoMock extends BoletoAbstract
 {

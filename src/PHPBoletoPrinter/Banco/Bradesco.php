@@ -25,13 +25,12 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-namespace OpenBoleto\Banco;
+namespace PHPBoletoPrinter\Banco;
 
-use OpenBoleto\BoletoAbstract;
-use OpenBoleto\Exception;
+use PHPBoletoPrinter\BoletoAbstract;
 
 /**
- * Classe boleto Santander
+ * Classe boleto Bradesco S/A.
  *
  * @package    OpenBoleto
  * @author     Daniel Garajau <http://github.com/kriansa>
@@ -39,63 +38,43 @@ use OpenBoleto\Exception;
  * @license    MIT License
  * @version    1.0
  */
-class Santander extends BoletoAbstract
+class Bradesco extends BoletoAbstract
 {
     /**
      * Código do banco
      * @var string
      */
-    protected $codigoBanco = '033';
+    protected $codigoBanco = '237';
 
     /**
      * Localização do logotipo do banco, referente ao diretório de imagens
      * @var string
      */
-    protected $logoBanco = 'santander.jpg';
+    protected $logoBanco = 'bradesco.jpg';
 
     /**
-     * Linha de local de pagamento
+     * De acordo com o ramo de atividade, poderão ser utilizadas uma das siglas: DM-
+     * Duplicata Mercantil, NP-Nota Promissória, NS-Nota de Seguro, CS-Cobrança
+     * Seriada, REC-Recibo, LC-Letras de Câmbio, ND-Nota de Débito, DS-Duplicata de
+     * Serviços, Outros
      * @var string
      */
-    protected $localPagamento = 'Pagar preferencialmente no Banco Santander';
+    protected $especieDoc = 'DM';
 
     /**
      * Define as carteiras disponíveis para este banco
      * @var array
      */
-    protected $carteiras = array('101', '102', '201');
+    protected $carteiras = array('3', '6', '9');
 
     /**
-     * Define os nomes das carteiras para exibição no boleto
-     * @var array
-     */
-    protected $carteirasNomes = array('101' => 'Cobrança Simples ECR', '102' => 'Cobrança Simples CSR');
-
-    /**
-     * Define o valor do IOS - Seguradoras (Se 7% informar 7. Limitado a 9%) - Demais clientes usar 0 (zero)
+     * Trata-se de código utilizado para identificar mensagens especificas ao cedente, sendo
+     * que o mesmo consta no cadastro do Banco, quando não houver código cadastrado preencher
+     * com zeros "000".
+     *
      * @var int
      */
-    protected $ios;
-
-    /**
-     * Define o valor do IOS
-     *
-     * @param int $ios
-     */
-    public function setIos($ios)
-    {
-        $this->ios = $ios;
-    }
-
-    /**
-     * Retorna o atual valor do IOS
-     *
-     * @return int
-     */
-    public function getIos()
-    {
-        return $this->ios;
-    }
+    protected $cip = '000';
 
     /**
      * Gera o Nosso Número.
@@ -104,32 +83,55 @@ class Santander extends BoletoAbstract
      */
     protected function gerarNossoNumero()
     {
-        return self::zeroFill($this->getSequencial(), 13);
+        return $this->getSequencial();
     }
 
     /**
      * Método para gerar o código da posição de 20 a 44
      *
      * @return string
-     * @throws \OpenBoleto\Exception
      */
     public function getCampoLivre()
     {
-        return '9' . self::zeroFill($this->getConta(), 7) .
-            $this->getNossoNumero() .
-            self::zeroFill($this->getIos(), 1) .
-            self::zeroFill($this->getCarteira(), 3);
+        return static::zeroFill($this->getAgencia(), 4) .
+            static::zeroFill($this->getCarteira(), 2) .
+            static::zeroFill($this->getNossoNumero(), 11) .
+            static::zeroFill($this->getConta(), 7) .
+            '0';
     }
 
     /**
-     * Define variáveis da view específicas do boleto do Santander
+     * Define o campo CIP do boleto
+     *
+     * @param int $cip
+     * @return Bradesco
+     */
+    public function setCip($cip)
+    {
+        $this->cip = $cip;
+        return $this;
+    }
+
+    /**
+     * Retorna o campo CIP do boleto
+     *
+     * @return int
+     */
+    public function getCip()
+    {
+        return $this->cip;
+    }
+
+    /**
+     * Define nomes de campos específicos do boleto do Bradesco
      *
      * @return array
      */
     public function getViewVars()
     {
         return array(
-            'esconde_uso_banco' => true,
+            'cip' => self::zeroFill($this->getCip(), 3),
+            'mostra_cip' => true,
         );
     }
 }

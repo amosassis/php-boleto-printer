@@ -1,7 +1,7 @@
 <?php
 
-namespace Tests\OpenBoleto;
-use OpenBoleto\Agente;
+namespace Tests\PHPBoletoPrinter;
+use PHPBoletoPrinter\Agente;
 
 class AgenteTest extends \PHPUnit_Framework_TestCase
 {

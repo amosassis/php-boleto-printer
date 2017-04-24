@@ -25,7 +25,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-namespace OpenBoleto;
+namespace PHPBoletoPrinter;
 
 /**
  * Classe de agente usuário do boleto
