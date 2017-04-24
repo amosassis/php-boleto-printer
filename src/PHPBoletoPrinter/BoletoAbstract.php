@@ -1232,7 +1232,7 @@ abstract class BoletoAbstract
         @include $this->getResourcePath() . '/views/' . $this->getLayout();
 
         return ob_get_clean();
-    }
+    }    
 
     /**
      * Retorna o campo Agência/Cedente do boleto
