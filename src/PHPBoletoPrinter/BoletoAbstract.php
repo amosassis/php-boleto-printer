@@ -1,5 +1,4 @@
 <?php
-
 /*
  * OpenBoleto - Geração de boletos bancários em PHP
  *
@@ -24,7 +23,6 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
 namespace PHPBoletoPrinter;
 
 use DateTime;
@@ -40,6 +38,7 @@ use DateTime;
  */
 abstract class BoletoAbstract
 {
+
     /**
      * Moedas disponíveis
      */
@@ -48,7 +47,7 @@ abstract class BoletoAbstract
     /**
      * @var array Nome espécie das moedas
      */
-    protected static $especie = array(
+    public static $especie = array(
         self::MOEDA_REAL => 'REAL'
     );
 
@@ -220,7 +219,7 @@ abstract class BoletoAbstract
      * @var Agente
      */
     protected $cedente;
-    
+
     /**
      * Entidade sacada (de quem se cobra o boleto)
      * @var Agente
@@ -280,10 +279,9 @@ abstract class BoletoAbstract
      *
      * @param array $params Parâmetros iniciais para construção do objeto
      */
-    public function  __construct($params = array())
+    public function __construct($params = array())
     {
-        foreach ($params as $param => $value)
-        {
+        foreach ($params as $param => $value) {
             if (method_exists($this, 'set' . $param)) {
                 $this->{'set' . $param}($value);
             }
@@ -1076,7 +1074,7 @@ abstract class BoletoAbstract
 
         $logoData or $logoData = 'data:image/' . pathinfo($this->getLogoBanco(), PATHINFO_EXTENSION) .
             ';base64,' . base64_encode(file_get_contents($this->getResourcePath() .
-            '/images/' . $this->getLogoBanco()));
+                    '/images/' . $this->getLogoBanco()));
 
         return $logoData;
     }
@@ -1126,7 +1124,6 @@ abstract class BoletoAbstract
         $numero = $this->gerarNossoNumero();
 
         // TODO: Fazer cache do nosso número para evitar múltiplas chamadas
-
         // Remove a formatação, caso especificado
         if (!$incluirFormatacao) {
             return str_replace(array('.', '/', ' ', '-'), '', $numero);
@@ -1196,7 +1193,7 @@ abstract class BoletoAbstract
             'especie' => static::$especie[$this->getMoeda()],
             'quantidade' => $this->getQuantidade(),
             'data_vencimento' => $this->getContraApresentacao() ? 'Contra Apresenta&ccedil;&atilde;o' : $this->getDataVencimento()->format('d/m/Y'),
-            'data_processamento'  => $this->getDataProcessamento()->format('d/m/Y'),
+            'data_processamento' => $this->getDataProcessamento()->format('d/m/Y'),
             'data_documento' => $this->getDataDocumento()->format('d/m/Y'),
             'pagamento_minimo' => static::formataDinheiro($this->getPagamentoMinimo()),
             'valor_documento' => static::formataDinheiro($this->getValor()),
@@ -1215,7 +1212,7 @@ abstract class BoletoAbstract
             'instrucoes' => (array) $this->getInstrucoes() + array(null, null, null, null, null, null, null, null), // Max: 8 linhas
             'local_pagamento' => $this->getLocalPagamento(),
             'numero_documento' => $this->getNumeroDocumento(),
-            'agencia_codigo_cedente'=> $this->getAgenciaCodigoCedente(),
+            'agencia_codigo_cedente' => $this->getAgenciaCodigoCedente(),
             'nosso_numero' => $this->getNossoNumero(),
             'especie_doc' => $this->getEspecieDoc(),
             'aceite' => $this->getAceite(),
@@ -1232,7 +1229,7 @@ abstract class BoletoAbstract
         @include $this->getResourcePath() . '/views/' . $this->getLayout();
 
         return ob_get_clean();
-    }    
+    }
 
     /**
      * Retorna o campo Agência/Cedente do boleto
@@ -1310,7 +1307,7 @@ abstract class BoletoAbstract
 
         // Concatenates bankCode + currencyCode + first block of 5 characters +
         // checkDigit.
-        $part1 = $this->getCodigoBanco(). $this->getMoeda() . $blocks['20-24'] . $check_digit;
+        $part1 = $this->getCodigoBanco() . $this->getMoeda() . $blocks['20-24'] . $check_digit;
 
         // Calculates part2 check digit from 2nd block of 10 characters.
         $check_digit = static::modulo10($blocks['25-34']);
@@ -1330,7 +1327,7 @@ abstract class BoletoAbstract
         $cd = $this->getDigitoVerificador();
 
         // Put part4 together.
-        $part4  = $this->getFatorVencimento() . $this->getValorZeroFill();
+        $part4 = $this->getFatorVencimento() . $this->getValorZeroFill();
 
         // Now put everything together.
         return "$part1 $part2 $part3 $cd $part4";
@@ -1363,10 +1360,10 @@ abstract class BoletoAbstract
 
         // Guarda inicial
         $retorno = '<div class="barcode">' .
-        '<div class="black thin"></div>' .
-        '<div class="white thin"></div>' .
-        '<div class="black thin"></div>' .
-        '<div class="white thin"></div>';
+            '<div class="black thin"></div>' .
+            '<div class="white thin"></div>' .
+            '<div class="black thin"></div>' .
+            '<div class="white thin"></div>';
 
         if (strlen($codigo) % 2 != 0) {
             $codigo = "0" . $codigo;
@@ -1401,9 +1398,18 @@ abstract class BoletoAbstract
 
         // Final
         return $retorno . '<div class="black large"></div>' .
-        '<div class="white thin"></div>' .
-        '<div class="black thin"></div>' .
-        '</div>';
+            '<div class="white thin"></div>' .
+            '<div class="black thin"></div>' .
+            '</div>';
+    }
+
+    public function getCodigoDeBarras()
+    {
+        $codigo = $this->getNumeroFebraban();
+        if (strlen($codigo) % 2 != 0) {
+            $codigo = "0" . $codigo;
+        }
+        return $codigo;
     }
 
     /**
@@ -1477,7 +1483,7 @@ abstract class BoletoAbstract
      * @param bool $mostrar_zero Se true, retorna 0,00 caso o valor seja 0, se false, retorna vazio
      * @return string
      */
-    protected static function formataDinheiro($valor, $mostrar_zero = false)
+    public static function formataDinheiro($valor, $mostrar_zero = false)
     {
         return $valor ? number_format($valor, 2, ',', '.') : ($mostrar_zero ? '0,00' : '');
     }
@@ -1503,7 +1509,7 @@ abstract class BoletoAbstract
      */
     protected static function caracteresDireita($string, $num)
     {
-        return substr($string, strlen($string)-$num, $num);
+        return substr($string, strlen($string) - $num, $num);
     }
 
     /**
@@ -1521,24 +1527,25 @@ abstract class BoletoAbstract
         //  Separacao dos numeros.
         for ($i = strlen($num); $i > 0; $i--) {
             //  Pega cada numero isoladamente.
-            $numeros[$i] = substr($num,$i-1,1);
+            $numeros[$i] = substr($num, $i - 1, 1);
             //  Efetua multiplicacao do numero pelo (falor 10).
             $temp = $numeros[$i] * $fator;
-            $temp0=0;
-            foreach (preg_split('// ',$temp,-1,PREG_SPLIT_NO_EMPTY) as $v){ $temp0+=$v; }
+            $temp0 = 0;
+            foreach (preg_split('// ', $temp, -1, PREG_SPLIT_NO_EMPTY) as $v) {
+                $temp0 += $v;
+            }
             $parcial10[$i] = $temp0; // $numeros[$i] * $fator;
             //  Monta sequencia para soma dos digitos no (modulo 10).
             $numtotal10 += $parcial10[$i];
             if ($fator == 2) {
                 $fator = 1;
-            }
-            else {
+            } else {
                 // Intercala fator de multiplicacao (modulo 10).
                 $fator = 2;
             }
         }
 
-        $remainder  = $numtotal10 % 10;
+        $remainder = $numtotal10 % 10;
         $digito = 10 - $remainder;
 
         // Make it zero if check digit is 10.
@@ -1555,15 +1562,15 @@ abstract class BoletoAbstract
      * @see Documentação em http://www.febraban.org.br/Acervo1.asp?id_texto=195&id_pagina=173&palavra=
      * @return array Retorna um array com as chaves 'digito' e 'resto'
      */
-    protected static function modulo11($num, $base=9)
+    protected static function modulo11($num, $base = 9)
     {
         $fator = 2;
 
-        $soma  = 0;
+        $soma = 0;
         // Separacao dos numeros.
         for ($i = strlen($num); $i > 0; $i--) {
             //  Pega cada numero isoladamente.
-            $numeros[$i] = substr($num,$i-1,1);
+            $numeros[$i] = substr($num, $i - 1, 1);
             //  Efetua multiplicacao do numero pelo falor.
             $parcial[$i] = $numeros[$i] * $fator;
             //  Soma dos digitos.
@@ -1577,9 +1584,9 @@ abstract class BoletoAbstract
         $result = array(
             'digito' => ($soma * 10) % 11,
             // Remainder.
-            'resto'  => $soma % 11,
+            'resto' => $soma % 11,
         );
-        if ($result['digito'] == 10){
+        if ($result['digito'] == 10) {
             $result['digito'] = 0;
         }
         return $result;

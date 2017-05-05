@@ -1,16 +1,16 @@
 <?php
-/* 
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 namespace PHPBoletoPrinter;
 
+use Zend\Barcode\Barcode;
 
-require_once __DIR__ . '/../../vendor/setasign/fpdf/fpdf.php';
+class PDFReport extends \FPDF
+{
 
-class PDFReport extends \FPDF{ 
     private $widths;
     private $aligns;
     private $types;
@@ -41,7 +41,8 @@ class PDFReport extends \FPDF{
      *     
      * ************************************************************************ */
 
-    function Image($file, $x = null, $y = null, $w = 0, $h = 0, $type = '', $link = '', $isMask = false, $maskImg = 0) {
+    function Image($file, $x = null, $y = null, $w = 0, $h = 0, $type = '', $link = '', $isMask = false, $maskImg = 0)
+    {
         //Put an image on the page 
         if (!isset($this->images[$file])) {
             //First use of image, get info 
@@ -107,7 +108,8 @@ class PDFReport extends \FPDF{
 
     // needs GD 2.x extension 
     // pixel-wise operation, not very fast 
-    function ImagePngWithAlpha($file, $x, $y, $w = 0, $h = 0, $link = '') {
+    function ImagePngWithAlpha($file, $x, $y, $w = 0, $h = 0, $link = '')
+    {
         $tmp_alpha = tempnam('.', 'mska');
         $this->tmpFiles[] = $tmp_alpha;
         $tmp_plain = tempnam('.', 'mskp');
@@ -150,14 +152,16 @@ class PDFReport extends \FPDF{
         $this->Image($tmp_plain, $x, $y, $w, $h, 'PNG', $link, false, $maskImg);
     }
 
-    function Close() {
+    function Close()
+    {
         parent::Close();
         // clean up tmp files 
         foreach ($this->tmpFiles as $tmp)
             @unlink($tmp);
     }
 
-    function _putimages() {
+    function _putimages()
+    {
         $filter = ($this->compress) ? '/Filter /FlateDecode ' : '';
         reset($this->images);
         while (list($file, $info) = each($this->images)) {
@@ -206,7 +210,8 @@ class PDFReport extends \FPDF{
 
     // this method overwriing the original version is only needed to make the Image method support PNGs with alpha channels. 
     // if you only use the ImagePngWithAlpha method for such PNGs, you can remove it from this script. 
-    function _parsepng($file) {
+    function _parsepng($file)
+    {
         //Extract info from a PNG file 
         $f = fopen($file, 'rb');
         if (!$f)
@@ -282,7 +287,6 @@ class PDFReport extends \FPDF{
         fclose($f);
         return array('w' => $w, 'h' => $h, 'cs' => $colspace, 'bpc' => $bpc, 'f' => 'FlateDecode', 'parms' => $parms, 'pal' => $pal, 'trns' => $trns, 'data' => $data);
     }
-
     /*     * ************************************************************************
      * Fim Images With Alpha
      * ************************************************************************ */
@@ -291,13 +295,15 @@ class PDFReport extends \FPDF{
      * HTML Parser
      * ************************************************************************ */
 
-    function txtentities($html) {
+    function txtentities($html)
+    {
         $trans = get_html_translation_table(HTML_ENTITIES);
         $trans = array_flip($trans);
         return strtr($html, $trans);
     }
 
-    function setHtml($html) {
+    function setHtml($html)
+    {
         //HTML parser
         $html = strip_tags($html, "<h2><table><b><u><i><a><img><p><br><strong><em><font><tr><blockquote>"); //excessoes
         $html = str_replace("\n", ' ', $html); //nova linha
@@ -329,7 +335,8 @@ class PDFReport extends \FPDF{
         }
     }
 
-    function OpenTag($tag, $attr) {
+    function OpenTag($tag, $attr)
+    {
         //Opening tag
         switch ($tag) {
             case 'H2':
@@ -380,7 +387,8 @@ class PDFReport extends \FPDF{
         }
     }
 
-    function CloseTag($tag) {
+    function CloseTag($tag)
+    {
         //Closing tag
         if ($tag == 'H2') {
             $this->SetFont('Arial', '', 9);
@@ -404,7 +412,8 @@ class PDFReport extends \FPDF{
         }
     }
 
-    function SetStyle($tag, $enable) {
+    function SetStyle($tag, $enable)
+    {
         //Modify style and select corresponding font
         $this->$tag += ($enable ? 1 : -1);
         $style = '';
@@ -415,7 +424,8 @@ class PDFReport extends \FPDF{
         $this->SetFont('', $style);
     }
 
-    function PutLink($URL, $txt) {
+    function PutLink($URL, $txt)
+    {
         //Put a hyperlink
         $this->SetTextColor(0, 0, 255);
         $this->SetStyle('U', true);
@@ -423,13 +433,13 @@ class PDFReport extends \FPDF{
         $this->SetStyle('U', false);
         $this->SetTextColor(0);
     }
-
     /*     * ************************************************************************
      * Fim HTML Parser
      * ************************************************************************ */
 
     ///Cell with horizontal scaling if text is too wide
-    function CellFit($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '', $scale = false, $force = true) {
+    function CellFit($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '', $scale = false, $force = true)
+    {
         //Get string width
         $str_width = $this->GetStringWidth($txt);
 
@@ -464,7 +474,8 @@ class PDFReport extends \FPDF{
     }
 
     //Cell with horizontal scaling always
-    function CellFitScaleForce($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '') {
+    function CellFitScaleForce($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '')
+    {
         $this->CellFit($w, $h, $txt, $border, $ln, $align, $fill, $link, true, true);
     }
 
@@ -477,7 +488,8 @@ class PDFReport extends \FPDF{
      * @param type $h
      * @param type $drawText
      */
-    public function BarCode($x, $y, $type, $code, $h, $drawText = false, $fontSize = 1) {
+    public function BarCode($x, $y, $w, $h, $type, $code, $drawText = false, $fontSize = 1)
+    {
         $barcodeOptions = array(
             'text' => $code,
             'barHeight' => $h,
@@ -486,19 +498,20 @@ class PDFReport extends \FPDF{
         );
         // No required options
         $rendererOptions = array();
-        $renderer = \Zend\Barcode\Barcode::factory(
-                        $type, 'image', $barcodeOptions, $rendererOptions
+        $renderer = Barcode::factory(
+                $type, 'image', $barcodeOptions, $rendererOptions
         );
         $pathbarcode = __DIR__ . '/../../resources/images/barcodes/barcode_' . Date("YmdHis") . rand(0, 100) . '.png';
         imagepng($renderer->draw(), $pathbarcode);
-        $this->Image($pathbarcode, $x, $y);
+        $this->Image($pathbarcode, $x, $y, $w, $h);
         chmod($pathbarcode, 0777);
         unlink($pathbarcode);
     }
 
     //fim Code128
 
-    function RoundedRect($x, $y, $w, $h, $r, $style = '') {
+    function RoundedRect($x, $y, $w, $h, $r, $style = '')
+    {
         $k = $this->k;
         $hp = $this->h;
         if ($style == 'F')
@@ -529,12 +542,14 @@ class PDFReport extends \FPDF{
         $this->_out($op);
     }
 
-    function _Arc($x1, $y1, $x2, $y2, $x3, $y3) {
+    function _Arc($x1, $y1, $x2, $y2, $x3, $y3)
+    {
         $h = $this->h;
         $this->_out(sprintf('%.2F %.2F %.2F %.2F %.2F %.2F c ', $x1 * $this->k, ($h - $y1) * $this->k, $x2 * $this->k, ($h - $y2) * $this->k, $x3 * $this->k, ($h - $y3) * $this->k));
     }
 
-    function DashedRect($x1, $y1, $x2, $y2, $width = 1, $nb = 15) {
+    function DashedRect($x1, $y1, $x2, $y2, $width = 1, $nb = 15)
+    {
         $this->SetLineWidth($width);
         $longueur = abs($x1 - $x2);
         $hauteur = abs($y1 - $y2);
@@ -561,7 +576,8 @@ class PDFReport extends \FPDF{
         }
     }
 
-    function drawTextBox($strText, $w, $h, $align = 'L', $valign = 'T', $border = true) {
+    function drawTextBox($strText, $w, $h, $align = 'L', $valign = 'T', $border = true)
+    {
         $xi = $this->GetX();
         $yi = $this->GetY();
 
@@ -585,7 +601,8 @@ class PDFReport extends \FPDF{
             $this->Rect($xi, $yi, $w, $h);
     }
 
-    function drawRows($w, $h, $txt, $border = 0, $align = 'J', $fill = false, $maxline = 0, $prn = 0) {
+    function drawRows($w, $h, $txt, $border = 0, $align = 'J', $fill = false, $maxline = 0, $prn = 0)
+    {
         $cw = &$this->CurrentFont['cw'];
         if ($w == 0)
             $w = $this->w - $this->rMargin - $this->x;
@@ -697,7 +714,8 @@ class PDFReport extends \FPDF{
         return $nl;
     }
 
-    function WordWrap(&$text, $maxwidth) {
+    function WordWrap(&$text, $maxwidth)
+    {
         $text = trim($text);
         if ($text === '')
             return 0;
@@ -742,23 +760,27 @@ class PDFReport extends \FPDF{
     }
 
     //Cell with horizontal scaling only if necessary
-    function CellFitScale($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '') {
+    function CellFitScale($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '')
+    {
         $this->CellFit($w, $h, $txt, $border, $ln, $align, $fill, $link, true, false);
     }
 
     //Cell with character spacing only if necessary
-    function CellFitSpace($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '') {
+    function CellFitSpace($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '')
+    {
         $this->CellFit($w, $h, $txt, $border, $ln, $align, $fill, $link, false, false);
     }
 
     //Cell with character spacing always
-    function CellFitSpaceForce($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '') {
+    function CellFitSpaceForce($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = false, $link = '')
+    {
         //Same as calling CellFit directly
         $this->CellFit($w, $h, $txt, $border, $ln, $align, $fill, $link, false, true);
     }
 
     //Patch to also work with CJK double-byte text
-    function MBGetStringLength($s) {
+    function MBGetStringLength($s)
+    {
         if ($this->CurrentFont['type'] == 'Type0') {
             $len = 0;
             $nbbytes = strlen($s);
@@ -774,27 +796,30 @@ class PDFReport extends \FPDF{
         } else
             return strlen($s);
     }
-
     /*     * *************************************************************************
      * Fim Barcode
      * *********************************************************************** */
 
-    function SetWidths($w) {
+    function SetWidths($w)
+    {
         //Set the array of column widths
         $this->widths = $w;
     }
 
-    function SetAligns($a) {
+    function SetAligns($a)
+    {
         //Set the array of column alignments
         $this->aligns = $a;
     }
 
-    function SetTypes($t) {
+    function SetTypes($t)
+    {
         //Set the array of column alignments
         $this->types = $t;
     }
 
-    function Row($data, $line_width = 0.1, $line_spacing = 5) {
+    function Row($data, $line_width = 0.1, $line_spacing = 5)
+    {
         //Calculate the height of the row
         $nb = 0;
         for ($i = 0; $i < count($data); $i++) {
@@ -835,7 +860,8 @@ class PDFReport extends \FPDF{
         $this->Ln($h);
     }
 
-    function formatTextType($text, $type) {
+    function formatTextType($text, $type)
+    {
         switch ($type) {
             case "string":
             default :
@@ -851,13 +877,15 @@ class PDFReport extends \FPDF{
         }
     }
 
-    function CheckPageBreak($h) {
+    function CheckPageBreak($h)
+    {
         //If the height h would cause an overflow, add a new page immediately
         if ($this->GetY() + $h > $this->PageBreakTrigger)
             $this->AddPage($this->CurOrientation);
     }
 
-    function NbLines($w, $txt) {
+    function NbLines($w, $txt)
+    {
         //Computes the number of lines a MultiCell of width w will take
         $cw = &$this->CurrentFont['cw'];
         if ($w == 0) {
@@ -903,14 +931,16 @@ class PDFReport extends \FPDF{
         return $nl;
     }
 
-    public function setParams() {
+    public function setParams()
+    {
         $this->AliasNbPages();
         $this->SetMargins(5, 6, 5);
         $this->AddPage('P', 'A4');
         $this->SetFont('Arial', '', 9);
     }
 
-    public function setLine($text = null) {
+    public function setLine($text = null)
+    {
         $yPoint = $this->GetY() - 5;
         if ($text) {
             $this->Ln(5);
@@ -923,7 +953,8 @@ class PDFReport extends \FPDF{
         $this->Ln(4);
     }
 
-    public function setText($text = null, $fontSize = 8, $fontStyle = 'B') {
+    public function setText($text = null, $fontSize = 8, $fontStyle = 'B')
+    {
         $yPoint = $this->GetY() - 5;
         if ($text) {
             $this->Ln(5);
@@ -962,7 +993,8 @@ class PDFReport extends \FPDF{
      */
     public function setTextBox(
     $x, $y, $w, $h, $text = '', $aFont = array('font' => 'Times', 'size' => 8, 'style' => ''), $vAlign = 'T', $hAlign = 'L', $border = 1, $link = '', $force = true, $hmax = 0, $vOffSet = 0
-    ) {
+    )
+    {
         $oldY = $y;
         $temObs = false;
         $resetou = false;
@@ -982,7 +1014,7 @@ class PDFReport extends \FPDF{
         }
         //desenhar a borda da caixa
         if ($border) {
-            $this->RoundedRect($x, $y, $w, $h, 0.8, '1234', 'D');
+            $this->RoundedRect($x, $y, $w, $h, 0, '1234', 'D');
         }
         //estabelecer o fonte
         $this->SetFont($aFont['font'], $aFont['style'], $aFont['size']);
@@ -1026,7 +1058,7 @@ class PDFReport extends \FPDF{
             }
             //ajustar ao alinhamento horizontal
             if ($hAlign == 'L') {
-                $x1 = $x + 0.5;
+                $x1 = $x + 0.6;
             }
             if ($hAlign == 'C') {
                 $x1 = $x + (($w - $comp) / 2);
@@ -1056,7 +1088,39 @@ class PDFReport extends \FPDF{
         return ($y1 - $y) - $incY;
     }
 
-    public function setDados(array $dados, $espacamento = 0, $fontFamily = 'Arial', $font_style = '') {
+    /**
+     * Cria uma caixa de texto com um Label e um Texto
+     * @param type $x
+     * @param type $y
+     * @param type $w
+     * @param type $h
+     * @param type $label
+     * @param type $text
+     * @param type $labelFont
+     * @param type $textFont
+     */
+    public function setLabeledTextBox(
+    $x, $y, $w, $h, $label = '', $text = '', $labelFont = array('font' => 'Times', 'size' => 8, 'style' => ''), $textFont = array('font' => 'Times', 'size' => 8, 'style' => ''), $textAlign = 'L'
+    )
+    {
+        $this->setTextBox($x, $y, $w, $h, $label, $labelFont, 'T', 'L', 0.1, '', true, 0, 0);
+        $this->SetFont($textFont['font'], $textFont['style'], $textFont['size']);
+
+        $comp = $this->GetStringWidth($text);
+        if ($textAlign === 'L') {
+            $x1 = $x + 0.6;
+        }
+        if ($textAlign === 'C') {
+            $x1 = $x + (($w - $comp) / 2);
+        }
+        if ($textAlign === 'R') {
+            $x1 = $x + $w - ($comp + 0.7);
+        }
+        $this->Text($x1, $y + 6, $text);
+    }
+
+    public function setDados(array $dados, $espacamento = 0, $fontFamily = 'Arial', $font_style = '')
+    {
         foreach ($dados as $key => $value) {
             if ($key <> $value) {
                 $this->SetFont($fontFamily, 'B', 8);
@@ -1069,7 +1133,8 @@ class PDFReport extends \FPDF{
         $this->Ln(4);
     }
 
-    public function setTabela(array $titulos, array $dados, array $width_colunas, $borda = 0, $fontSize = 7, $line_spacing = 5, $fontFamily = 'Arial', $font_style = '') {
+    public function setTabela(array $titulos, array $dados, array $width_colunas, $borda = 0, $fontSize = 7, $line_spacing = 5, $fontFamily = 'Arial', $font_style = '')
+    {
         $this->SetWidths($width_colunas);
 
         //Colunas
@@ -1083,7 +1148,8 @@ class PDFReport extends \FPDF{
         }
     }
 
-    public function setTotais(array $totais) {
+    public function setTotais(array $totais)
+    {
         foreach ($totais as $key => $value) {
             $this->SetFont('Arial', 'B', 8);
             $this->Cell(150, 10, $key, 0, 0, 'R');
@@ -1094,7 +1160,8 @@ class PDFReport extends \FPDF{
         $this->Ln(10);
     }
 
-    public function valorPorExtenso($valor = 0, $bolExibirMoeda = true, $bolPalavraFeminina = false) {
+    public function valorPorExtenso($valor = 0, $bolExibirMoeda = true, $bolPalavraFeminina = false)
+    {
 
         $valor = $this->removerFormatacaoNumero($valor);
 
@@ -1168,7 +1235,8 @@ class PDFReport extends \FPDF{
         return($rt ? trim($rt) : "zero");
     }
 
-    public function removerFormatacaoNumero($strNumero) {
+    public function removerFormatacaoNumero($strNumero)
+    {
 
         $strNumero = trim(str_replace("R$", null, $strNumero));
 
@@ -1191,7 +1259,8 @@ class PDFReport extends \FPDF{
         return $resultado;
     }
 
-    public function setObservacoes($dados, $width = 40) {
+    public function setObservacoes($dados, $width = 40)
+    {
         foreach ($dados as $key => $value) {
             $this->SetFont('Arial', 'B', 8);
             $this->Cell($width, 3, $key, 0, 0);
@@ -1201,7 +1270,8 @@ class PDFReport extends \FPDF{
         }
     }
 
-    public function outputPDF($filename, $mode) {
+    public function outputPDF($filename, $mode)
+    {
         if ($mode === 'F') {
             $path = BASEPATH . '../outputfiles/' . $_SESSION["identificacao"] . '/pdf/';
         } else {
@@ -1209,5 +1279,4 @@ class PDFReport extends \FPDF{
         }
         $this->Output($path . $filename, $mode);
     }
-
 }

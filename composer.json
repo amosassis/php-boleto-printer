@@ -16,8 +16,8 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "setasign/fpdf": "1.8.1",
-        "zendframework/zend-barcode": "*"
+        "zendframework/zend-barcode": "*",
+        "setasign/fpdf": "1.8.1"        
     },
     "autoload": {
         "psr-4": {

@@ -1,6 +1,5 @@
 <?php
-
-require __DIR__ . '/../autoloader.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 use PHPBoletoPrinter\Banco\Itau;
 use PHPBoletoPrinter\Agente;
@@ -18,25 +17,22 @@ $boleto = new Itau(array(
     'agencia' => 1724, // 4 dígitos
     'carteira' => 112, // 3 dígitos
     'conta' => 12345, // 5 dígitos
-    
     // Parâmetro obrigatório somente se a carteira for
     // 107, 122, 142, 143, 196 ou 198
     'codigoCliente' => 12345, // 5 dígitos
     'numeroDocumento' => 1234567, // 7 dígitos
-
     // Parâmetros recomendáveis
     //'logoPath' => 'http://empresa.com.br/logo.jpg', // Logo da sua empresa
     'contaDv' => 2,
     'agenciaDv' => 1,
-    'descricaoDemonstrativo' => array( // Até 5
+    'descricaoDemonstrativo' => array(// Até 5
         'Compra de materiais cosméticos',
         'Compra de alicate',
     ),
-    'instrucoes' => array( // Até 8
+    'instrucoes' => array(// Até 8
         'Após o dia 30/11 cobrar 2% de mora e 1% de juros ao dia.',
         'Não receber após o vencimento.',
     ),
-
     // Parâmetros opcionais
     //'resourcePath' => '../resources',
     //'moeda' => Itau::MOEDA_REAL,
@@ -57,11 +53,16 @@ $boleto = new Itau(array(
     //'valorCobrado' => 123.12,
     //'valorUnitario' => 123.12,
     //'quantidade' => 1,
-));
+    ));
 
 $boleto->setLayout('default-comprovante-entrega.phtml');
 
-echo $boleto->getOutput();
+$pdf = new PHPBoletoPrinter\BoletoPDF();
+$pdf->AddBoleto($boleto);
+$pdf->Output();
+
+
+//echo $boleto->getOutput();
 
 
 
