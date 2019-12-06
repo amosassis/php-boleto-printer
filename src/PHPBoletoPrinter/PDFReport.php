@@ -163,8 +163,8 @@ class PDFReport extends \FPDF
     function _putimages()
     {
         $filter = ($this->compress) ? '/Filter /FlateDecode ' : '';
-        reset($this->images);
-        while (list($file, $info) = each($this->images)) {
+        reset($this->images);       
+        foreach ($this->images as $file => $info) {
             $this->_newobj();
             $this->images[$file]['n'] = $this->n;
             $this->_out('<</Type /XObject');
@@ -173,7 +173,7 @@ class PDFReport extends \FPDF
             $this->_out('/Height ' . $info['h']);
 
             if (isset($info["masked"]))
-                $this->_out('/SMask ' . ($this->n - 1) . ' 0 R');### 
+                $this->_out('/SMask ' . ($this->n - 1) . ' 0 R'); ### 
 
             if ($info['cs'] == 'Indexed')
                 $this->_out('/ColorSpace [/Indexed /DeviceRGB ' . (strlen($info['pal']) / 3 - 1) . ' ' . ($this->n + 1) . ' 0 R]');
