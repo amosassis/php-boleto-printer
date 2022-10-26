@@ -4,6 +4,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
 namespace PHPBoletoPrinter;
 
 class BoletoPDF
@@ -217,12 +218,11 @@ class BoletoPDF
         $this->posY = 102;
     }
 
-    public function Output($mode = 'I')
+    public function Output($mode = 'I', $name = '')
     {
-        if ($mode == 'I') {
-            $this->pdf->Output();
-        }
+        $this->pdf->Output($mode, $name);
     }
+
     //Helpers
 
     /**
